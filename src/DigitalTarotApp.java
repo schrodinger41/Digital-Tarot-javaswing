@@ -32,25 +32,71 @@ public class DigitalTarotApp {
     }
 
     private void createAndShowGUI() {
-        frame = new JFrame("Digital Tarot — Personality Readings");
+        frame = new JFrame("🔮 Digital Tarot — Personality Readings");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(720, 600);
-        frame.setLayout(new BorderLayout(8, 8));
+        frame.setSize(900, 720);
+        frame.setLayout(new BorderLayout());
 
+        // Darker purple background
+        Color bg = new Color(30, 10, 50);
+        Color panelBg = new Color(55, 25, 85);
+        Color buttonColor = new Color(140, 90, 200);
+
+        frame.getContentPane().setBackground(bg);
+
+        // ===== TOP TITLE PANEL =====
+        JPanel titlePanel = new JPanel();
+        titlePanel.setBackground(bg);
+        titlePanel.setLayout(new BoxLayout(titlePanel, BoxLayout.Y_AXIS));
+
+        JLabel title = new JLabel("🔮  Welcome to Digital Tarot  🔮");
+        title.setForeground(new Color(220, 190, 255));
+        title.setFont(new Font("Serif", Font.BOLD, 38));
+        title.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel subtitle = new JLabel("(Personality Readings)");
+        subtitle.setForeground(new Color(200, 160, 240));
+        subtitle.setFont(new Font("Serif", Font.PLAIN, 22));
+        subtitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        titlePanel.add(Box.createVerticalStrut(10));
+        titlePanel.add(title);
+        titlePanel.add(Box.createVerticalStrut(5));
+        titlePanel.add(subtitle);
+        titlePanel.add(Box.createVerticalStrut(15));
+
+        frame.add(titlePanel, BorderLayout.NORTH);
+
+        // ===== CENTER DISPLAY AREA =====
         displayArea = new JTextArea();
         displayArea.setEditable(false);
-        displayArea.setFont(new Font("Monospaced", Font.PLAIN, 14));
-        displayArea.setMargin(new Insets(10, 10, 10, 10));
+
+        // Use monospaced font (required for ASCII art)
+        displayArea.setFont(new Font("Monospaced", Font.PLAIN, 18));
+
+        // Disable wrap (critical for ASCII alignment)
+        displayArea.setLineWrap(false);
+        displayArea.setWrapStyleWord(false);
+
+        displayArea.setForeground(new Color(235, 220, 255));
+        displayArea.setBackground(panelBg);
+        displayArea.setMargin(new Insets(18, 20, 18, 20));
+
         JScrollPane scroll = new JScrollPane(displayArea);
+        scroll.setBorder(BorderFactory.createLineBorder(new Color(170, 130, 210), 2));
         frame.add(scroll, BorderLayout.CENTER);
 
-        // Buttons
+        // ===== BUTTON PANEL =====
         JPanel controlPanel = new JPanel();
-        drawButton = new JButton("Draw Card");
-        revealButton = new JButton("Reveal Fortune");
-        yesButton = new JButton("Yes");
-        noButton = new JButton("No");
-        resetDeckButton = new JButton("Reset Deck");
+        controlPanel.setLayout(new GridLayout(1, 5, 15, 15));
+        controlPanel.setBackground(bg);
+        controlPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 20, 15));
+
+        drawButton = styledButton("Draw Card", buttonColor);
+        revealButton = styledButton("Reveal Fortune", buttonColor);
+        yesButton = styledButton("Yes", buttonColor);
+        noButton = styledButton("No", buttonColor);
+        resetDeckButton = styledButton("Reset Deck", buttonColor);
 
         controlPanel.add(drawButton);
         controlPanel.add(revealButton);
@@ -60,25 +106,52 @@ public class DigitalTarotApp {
 
         frame.add(controlPanel, BorderLayout.SOUTH);
 
-        // Initially disable Yes/No (only enabled once decision flow begins)
+        // Disable yes/no initially
         yesButton.setEnabled(false);
         noButton.setEnabled(false);
 
-        // Event handlers
+        // ===== Event handlers =====
         drawButton.addActionListener(e -> onDrawCard());
         revealButton.addActionListener(e -> onRevealFortune());
         yesButton.addActionListener(e -> onDecision(true));
         noButton.addActionListener(e -> onDecision(false));
         resetDeckButton.addActionListener(e -> onResetDeck());
 
-        // show initial help text
-        displayArea.append("Welcome to Digital Tarot (Personality-style readings).\n");
-        displayArea.append("Click 'Draw Card' to pick a card.\n");
-        displayArea.append("After drawing, answer Yes/No to follow the decision path.\n");
-        displayArea.append("Use 'Reveal Fortune' to view queued fortunes.\n\n");
+        // ===== Welcome text =====
+        displayArea.append(
+            "Click **Draw Card** to pick a tarot card.\n" +
+            "Follow the Yes/No path to shape your reading.\n" +
+            "Use **Reveal Fortune** to reveal queued fortunes.\n\n"
+        );
 
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
+    }
+
+    /** Fancy styled buttons with hover effect */
+    private JButton styledButton(String text, Color color) {
+        JButton b = new JButton(text);
+        b.setFocusPainted(false);
+        b.setForeground(Color.WHITE);
+        b.setBackground(color);
+        b.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        b.setPreferredSize(new Dimension(150, 45));
+        b.setBorder(BorderFactory.createLineBorder(new Color(230, 210, 255), 1));
+
+        // Hover effect
+        b.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                b.setBackground(color.brighter());
+                b.setBorder(BorderFactory.createLineBorder(new Color(255, 245, 255), 2));
+            }
+
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                b.setBackground(color);
+                b.setBorder(BorderFactory.createLineBorder(new Color(230, 210, 255), 1));
+            }
+        });
+
+        return b;
     }
 
     private void onDrawCard() {
