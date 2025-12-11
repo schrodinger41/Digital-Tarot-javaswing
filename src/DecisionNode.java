@@ -1,9 +1,3 @@
-/**
- * DecisionNode:
- * - For non-leaf nodes, 'value' stores the question and left/right point to
- * children.
- * - For leaf nodes, 'value' stores the final outcome (fortune).
- */
 class DecisionNode {
     private final String value;
     private DecisionNode left; // yes branch

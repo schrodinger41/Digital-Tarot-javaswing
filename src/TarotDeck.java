@@ -10,7 +10,6 @@ class TarotDeck {
 
     public void resetDeck() {
         deck.clear();
-        // All 22 Major Arcana
         String[] cards = {
                 "The Fool", "The Magician", "The High Priestess", "The Empress", "The Emperor",
                 "The Hierophant", "The Lovers", "The Chariot", "Strength", "The Hermit",
@@ -19,7 +18,7 @@ class TarotDeck {
                 "Judgement", "The World"
         };
         List<String> list = new ArrayList<>(Arrays.asList(cards));
-        Collections.shuffle(list); // shuffle
+        Collections.shuffle(list);
         deck.addAll(list);
     }
 

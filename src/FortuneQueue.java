@@ -1,9 +1,6 @@
 import java.util.LinkedList;
 import java.util.Queue;
 
-/**
- * FortuneQueue - simple FIFO queue for fortune messages.
- */
 class FortuneQueue {
     private final Queue<String> q = new LinkedList<>();
 

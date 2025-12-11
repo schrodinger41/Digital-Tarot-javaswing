@@ -1,15 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 
-/**
- * DigitalTarotApp
- * Main Swing GUI.
- *
- * - Draw Card: pops a card from the deck (stack), shows ASCII art
- * - After draw: decision flow begins (Yes/No buttons)
- * - At leaf: outcome is enqueued into FortuneQueue
- * - Reveal Fortune: dequeues next fortune and shows it in the display area
- */
 public class DigitalTarotApp {
     private TarotDeck deck;
     private FortuneQueue queue;
@@ -17,7 +9,8 @@ public class DigitalTarotApp {
 
     // GUI components
     private JFrame frame;
-    private JTextArea displayArea;
+    private JTextArea displayArea; // keeps text log and questions
+    private JPanel imagePanel; // center panel to display card image
     private JButton drawButton, revealButton, yesButton, noButton, resetDeckButton;
 
     // track last drawn card name for message personalization
@@ -68,23 +61,40 @@ public class DigitalTarotApp {
         frame.add(titlePanel, BorderLayout.NORTH);
 
         // ===== CENTER DISPLAY AREA =====
+        // Container for Image + Log (Option A: image replaces ASCII area)
+        JPanel centerPanel = new JPanel(new BorderLayout());
+        centerPanel.setBackground(bg);
+
+        // Image Panel (this replaces the ASCII area)
+        imagePanel = new JPanel();
+        imagePanel.setBackground(bg);
+        imagePanel.setPreferredSize(new Dimension(300, 500));
+        imagePanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        // Initial placeholder
+        JLabel placeholder = new JLabel("Place PNG images in the 'images' folder\n(e.g. the_fool.png)");
+        placeholder.setForeground(new Color(235, 220, 255));
+        placeholder.setHorizontalAlignment(SwingConstants.CENTER);
+        imagePanel.setLayout(new GridBagLayout());
+        imagePanel.add(placeholder);
+
+        centerPanel.add(imagePanel, BorderLayout.NORTH);
+
+        // 2. Text Log Area (below image)
         displayArea = new JTextArea();
         displayArea.setEditable(false);
-
-        // Use monospaced font (required for ASCII art)
-        displayArea.setFont(new Font("Monospaced", Font.PLAIN, 18));
-
-        // Disable wrap (critical for ASCII alignment)
-        displayArea.setLineWrap(false);
-        displayArea.setWrapStyleWord(false);
-
+        displayArea.setFont(new Font("Monospaced", Font.PLAIN, 16));
+        displayArea.setLineWrap(true);
+        displayArea.setWrapStyleWord(true);
         displayArea.setForeground(new Color(235, 220, 255));
         displayArea.setBackground(panelBg);
-        displayArea.setMargin(new Insets(18, 20, 18, 20));
+        displayArea.setMargin(new Insets(10, 10, 10, 10));
 
         JScrollPane scroll = new JScrollPane(displayArea);
         scroll.setBorder(BorderFactory.createLineBorder(new Color(170, 130, 210), 2));
-        frame.add(scroll, BorderLayout.CENTER);
+        centerPanel.add(scroll, BorderLayout.CENTER);
+
+        frame.add(centerPanel, BorderLayout.CENTER);
 
         // ===== BUTTON PANEL =====
         JPanel controlPanel = new JPanel();
@@ -119,10 +129,9 @@ public class DigitalTarotApp {
 
         // ===== Welcome text =====
         displayArea.append(
-            "Click **Draw Card** to pick a tarot card.\n" +
-            "Follow the Yes/No path to shape your reading.\n" +
-            "Use **Reveal Fortune** to reveal queued fortunes.\n\n"
-        );
+                "Click Draw Card to pick a tarot card.\n" +
+                        "Follow the Yes/No path to shape your reading.\n" +
+                        "Use Reveal Fortune to reveal queued fortunes.\n\n");
 
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
@@ -159,26 +168,42 @@ public class DigitalTarotApp {
         if (card == null) {
             displayArea.append("[Deck empty] Use Reset Deck to reinitialize.\n\n");
             lastCard = null;
-            // disable decision buttons
             yesButton.setEnabled(false);
             noButton.setEnabled(false);
+            clearImage();
             return;
         }
 
         lastCard = card;
-        // show ASCII art + name
-        String art = TarotCardArt.getArt(card);
-        displayArea.append(art);
+
+        // Load and display image using TarotCardArt
+        updateCardImage(card);
+
         displayArea.append("\nYou drew: " + card + "\n\n");
 
         // start the decision flow (personality-style)
-        decisionTree.startCard(card); // initialize traversal for this card
+        decisionTree.startCard(card);
         String first = decisionTree.getCurrentQuestion();
         displayArea.append("Question: " + first + "  (Answer Yes/No)\n\n");
 
         // enable yes/no
         yesButton.setEnabled(true);
         noButton.setEnabled(true);
+    }
+
+    private void updateCardImage(String cardName) {
+        imagePanel.removeAll();
+        JLabel imgLabel = TarotCardArt.getCardImageLabel(cardName, 300, 500);
+        imagePanel.setLayout(new BorderLayout());
+        imagePanel.add(imgLabel, BorderLayout.CENTER);
+        imagePanel.revalidate();
+        imagePanel.repaint();
+    }
+
+    private void clearImage() {
+        imagePanel.removeAll();
+        imagePanel.revalidate();
+        imagePanel.repaint();
     }
 
     private void onDecision(boolean yes) {
@@ -230,6 +255,7 @@ public class DigitalTarotApp {
         deck.resetDeck(); // reinitialize & shuffle
         displayArea.append("[Deck reset and shuffled.]\n\n");
         lastCard = null;
+        clearImage();
         yesButton.setEnabled(false);
         noButton.setEnabled(false);
     }
