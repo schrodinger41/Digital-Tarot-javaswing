@@ -25,8 +25,30 @@ class TarotCardArt {
 
         ImageIcon icon = new ImageIcon(imgFile.getAbsolutePath());
         Image img = icon.getImage();
-
         Image scaled = img.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+
+        label.setIcon(new ImageIcon(scaled));
+        return label;
+    }
+
+    /** 🔮 Card back image (back.png) */
+    public static JLabel getBackImageLabel(int width, int height) {
+        File imgFile = new File("images", "back.png");
+
+        JLabel label = new JLabel();
+        label.setHorizontalAlignment(SwingConstants.CENTER);
+        label.setVerticalAlignment(SwingConstants.CENTER);
+
+        if (!imgFile.exists()) {
+            label.setText("[Image not found: back.png]");
+            label.setForeground(Color.WHITE);
+            return label;
+        }
+
+        ImageIcon icon = new ImageIcon(imgFile.getAbsolutePath());
+        Image img = icon.getImage();
+        Image scaled = img.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+
         label.setIcon(new ImageIcon(scaled));
         return label;
     }
