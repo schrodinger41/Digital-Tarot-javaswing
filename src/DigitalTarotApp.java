@@ -73,6 +73,20 @@ public class DigitalTarotApp {
 
         JScrollPane scroll = new JScrollPane(displayArea);
         scroll.setBorder(BorderFactory.createLineBorder(new Color(106, 52, 49), 3));
+        scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+
+        Color thumbColor = new Color(226, 149, 144);
+        Color thumbHoverColor = thumbColor.brighter();
+        Color trackColor = panelBg;
+
+        scroll.getVerticalScrollBar().setUI(
+                new CustomScrollBarUI(thumbColor, thumbHoverColor, trackColor)
+        );
+        scroll.getHorizontalScrollBar().setUI(
+                new CustomScrollBarUI(thumbColor, thumbHoverColor, trackColor)
+        );
+
 
         JPanel textPanel = new JPanel(new BorderLayout());
         textPanel.setBackground(panelBg);
@@ -123,9 +137,24 @@ public class DigitalTarotApp {
         b.setForeground(new Color(148, 84, 84));
         b.setBackground(color);
         b.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        b.setPreferredSize(new Dimension(150, 45));
         b.setBorder(BorderFactory.createLineBorder(new Color(106, 52, 49), 2));
+
+        b.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                b.setBackground(color.brighter());
+                b.setBorder(BorderFactory.createLineBorder(new Color(140, 69, 65), 3));
+            }
+
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                b.setBackground(color);
+                b.setBorder(BorderFactory.createLineBorder(new Color(106, 52, 49), 2));
+            }
+        });
+
         return b;
     }
+
 
     // 🔮 UPDATED DRAW LOGIC
     private void onDrawCard() {
@@ -236,6 +265,74 @@ public class DigitalTarotApp {
         yesButton.setEnabled(false);
         noButton.setEnabled(false);
     }
+
+    class CustomScrollBarUI extends BasicScrollBarUI {
+        private final Color thumbColor;
+        private final Color thumbHoverColor;
+        private final Color trackColor;
+        private boolean hover = false;
+
+        public CustomScrollBarUI(Color thumbColor, Color thumbHoverColor, Color trackColor) {
+            this.thumbColor = thumbColor;
+            this.thumbHoverColor = thumbHoverColor;
+            this.trackColor = trackColor;
+        }
+
+        @Override
+        protected void configureScrollBarColors() { }
+
+        @Override
+        protected void paintThumb(Graphics g, JComponent c, Rectangle thumbBounds) {
+            if (thumbBounds.isEmpty() || !scrollbar.isEnabled()) return;
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(hover ? thumbHoverColor : thumbColor);
+            g2.fillRect(thumbBounds.x, thumbBounds.y, thumbBounds.width, thumbBounds.height);
+            g2.dispose();
+        }
+
+        @Override
+        protected void paintTrack(Graphics g, JComponent c, Rectangle trackBounds) {
+            g.setColor(trackColor);
+            g.fillRect(trackBounds.x, trackBounds.y, trackBounds.width, trackBounds.height);
+        }
+
+        @Override
+        protected JButton createDecreaseButton(int orientation) {
+            return createZeroButton();
+        }
+
+        @Override
+        protected JButton createIncreaseButton(int orientation) {
+            return createZeroButton();
+        }
+
+        private JButton createZeroButton() {
+            JButton button = new JButton();
+            button.setPreferredSize(new Dimension(0, 0));
+            button.setMinimumSize(new Dimension(0, 0));
+            button.setMaximumSize(new Dimension(0, 0));
+            return button;
+        }
+
+        @Override
+        protected void installListeners() {
+            super.installListeners();
+            scrollbar.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+                public void mouseMoved(java.awt.event.MouseEvent e) {
+                    hover = true;
+                    scrollbar.repaint();
+                }
+            });
+            scrollbar.addMouseListener(new java.awt.event.MouseAdapter() {
+                public void mouseExited(java.awt.event.MouseEvent e) {
+                    hover = false;
+                    scrollbar.repaint();
+                }
+            });
+        }
+    }
+
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(DigitalTarotApp::new);
