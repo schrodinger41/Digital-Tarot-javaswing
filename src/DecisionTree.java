@@ -3,7 +3,6 @@ import java.util.HashMap;
 class DecisionTree {
         private HashMap<String, DecisionNode> cardTrees;
         private DecisionNode current;
-        private String currentCard;
 
         public DecisionTree() {
                 buildTrees();
@@ -228,7 +227,6 @@ class DecisionTree {
         }
 
         public void startCard(String cardName) {
-                currentCard = cardName;
                 current = cardTrees.get(cardName);
         }
 

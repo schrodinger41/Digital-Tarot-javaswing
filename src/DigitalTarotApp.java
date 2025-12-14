@@ -24,7 +24,7 @@ public class DigitalTarotApp {
     private void createAndShowGUI() {
         frame = new JFrame("🔮 Digital Tarot — Personality Readings");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(900, 750);
+        frame.setSize(900, 790);
         frame.setLayout(new BorderLayout());
 
         Color bg = new Color(175, 103, 101);
@@ -90,6 +90,11 @@ public class DigitalTarotApp {
 
         JPanel textPanel = new JPanel(new BorderLayout());
         textPanel.setBackground(panelBg);
+
+        int horizontalPadding = 15;
+        textPanel.setBackground(bg); // same as frame background
+        textPanel.setBorder(BorderFactory.createEmptyBorder(0, horizontalPadding, 0, horizontalPadding));
+
         textPanel.add(scroll, BorderLayout.CENTER);
 
         centerPanel.add(textPanel, BorderLayout.CENTER);
@@ -189,36 +194,36 @@ public class DigitalTarotApp {
     private void playFlipAnimation(String cardName) {
         final int fullWidth = 323;
         final int height = 549;
-        final int steps = 20;
+        final int steps = 15; 
+        final int delay = 10; 
 
-        Timer timer = new Timer(20, null);
+        Timer timer = new Timer(delay, null);
         final int[] step = { 0 };
         final boolean[] showingBack = { true };
 
         timer.addActionListener(e -> {
             step[0]++;
 
-            // Calculate scale (1 → 0 → 1)
             double progress = step[0] / (double) steps;
-            double scaleX = progress <= 0.5
-                    ? 1 - (progress * 2)
-                    : (progress - 0.5) * 2;
+            double scaleX;
+
+            if (progress <= 0.5) {
+                scaleX = 1 - Math.pow(progress * 2, 0.5); 
+            } else {
+                scaleX = (progress - 0.5) * 2;
+            }
 
             int currentWidth = Math.max(1, (int) (fullWidth * scaleX));
 
             imagePanel.removeAll();
 
-            // Swap image at midpoint (when "edge-on")
-            JLabel imgLabel;
             if (progress >= 0.5 && showingBack[0]) {
                 showingBack[0] = false;
             }
 
-            if (showingBack[0]) {
-                imgLabel = TarotCardArt.getBackImageLabel(currentWidth, height);
-            } else {
-                imgLabel = TarotCardArt.getCardImageLabel(cardName, currentWidth, height);
-            }
+            JLabel imgLabel = showingBack[0]
+                    ? TarotCardArt.getBackImageLabel(currentWidth, height)
+                    : TarotCardArt.getCardImageLabel(cardName, currentWidth, height);
 
             imagePanel.add(imgLabel, BorderLayout.CENTER);
             imagePanel.revalidate();
@@ -226,12 +231,8 @@ public class DigitalTarotApp {
 
             if (step[0] >= steps) {
                 timer.stop();
-
-                // Ensure final card is fully visible
                 imagePanel.removeAll();
-                imagePanel.add(
-                        TarotCardArt.getCardImageLabel(cardName, fullWidth, height),
-                        BorderLayout.CENTER);
+                imagePanel.add(TarotCardArt.getCardImageLabel(cardName, fullWidth, height), BorderLayout.CENTER);
                 imagePanel.revalidate();
                 imagePanel.repaint();
             }
