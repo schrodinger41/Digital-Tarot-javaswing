@@ -4,11 +4,6 @@ import java.io.File;
 
 class TarotCardArt {
 
-    /**
-     * Return a JLabel containing a scaled ImageIcon for cardName.
-     * Looks for images in the "images/" folder relative to runtime working dir.
-     * Filename mapping: cardName -> lowercase, spaces -> underscore, extension png.
-     */
     public static JLabel getCardImageLabel(String cardName, int width, int height) {
         String filename = cardName.toLowerCase().replace(" ", "_") + ".png";
         File imgFile = new File("images", filename);
@@ -31,7 +26,6 @@ class TarotCardArt {
         return label;
     }
 
-    /** 🔮 Card back image (back.png) */
     public static JLabel getBackImageLabel(int width, int height) {
         File imgFile = new File("images", "back.png");
 
